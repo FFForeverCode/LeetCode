@@ -1,18 +1,11 @@
-import org.w3c.dom.Node;
-
-import javax.swing.tree.TreeNode;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author ForeverCode
- * @date 2024/12/17
+ * &#064;date  2024/12/17
  */
 public class Solutions {
     //2024-12-17
-
     /**
      * 手撕快速排序
      * 快速排序
@@ -139,6 +132,34 @@ public class Solutions {
             head = head.next;
         }
         return false;
+    }
+
+
+    //2024-12-18
+
+    /**
+     * 合并两个有序升序链表
+     * @param list1 链表1
+     * @param list2 链表2
+     * @return
+     */
+    public ListNode mergeTwoLists(ListNode list1,ListNode list2) {
+        PriorityQueue<ListNode>queue = new PriorityQueue<>((o1,o2)->{return o1.val-o2.val;});
+        while(list1!=null){
+            queue.offer(list1);
+            list1 = list1.next;
+        }
+        while(list2!=null){
+            queue.offer(list2);
+            list2 = list2.next;
+        }
+        ListNode dummyNode = new ListNode();
+        ListNode pre = dummyNode;
+        while(!queue.isEmpty()){
+            pre.next = queue.poll();
+            pre = pre.next;
+        }
+        return dummyNode.next;
     }
 
 
