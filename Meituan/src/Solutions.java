@@ -162,5 +162,28 @@ public class Solutions {
         return dummyNode.next;
     }
 
+    /**
+     * 最长的无重复子串
+     * @param s 字符串
+     * @return 最长的长度
+     */
+    public int lengthOfLongestSubstring(String s){
+        if(s.length()==0) return 0;
+        int left = 0,right = 0;
+        Set<Character>set = new HashSet<>();
+        set.add(s.charAt(0));
+        int ans = 1;
+        for(right = 1;right<s.length();right++){
+            char c = s.charAt(right);
+            while(set.contains(c)){
+                set.remove(s.charAt(left));
+                left++;
+            }
+            set.add(c);
+            ans = Math.max(ans,right - left + 1);
+        }
+        return ans;
+    }
+
 
 }
