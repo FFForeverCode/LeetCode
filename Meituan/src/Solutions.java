@@ -163,7 +163,7 @@ public class Solutions {
     }
 
     /**
-     * 最长的无重复子串
+     * 最长 无重复子串
      * @param s 字符串
      * @return 最长的长度
      */
@@ -184,6 +184,110 @@ public class Solutions {
         }
         return ans;
     }
+
+    /**
+     * 删除所有重复的节点
+     * @param head
+     * @return
+     */
+    public ListNode deleteDuplicates(ListNode head){
+        ListNode dummyNode = new ListNode();
+        dummyNode.next = head;
+        ListNode pre = dummyNode;
+        boolean flag = false;
+        while(pre.next!=null){
+            flag = false;
+           ListNode later = pre.next.next;
+           while(later!=null&&later.val==pre.next.val){
+               later = later.next;
+               flag = true;
+           }
+           if(flag) {
+               pre.next = later;
+           }else{
+               pre = pre.next;
+           }
+        }
+        return dummyNode.next;
+    }
+
+    /**
+     * 三数之和
+     * @param nums 数组
+     * @return 返回结果
+     */
+    public List<List<Integer>> threeSum(int[]nums){
+        List<List<Integer>>ans = new LinkedList<>();
+        Arrays.sort(nums);
+        for(int i = 0;i<nums.length-2;i++){
+            if(nums[i]>0){
+                return ans;
+            }
+            if(i>0&&nums[i]==nums[i-1]) {
+                continue;
+            }
+            int target = -nums[i];
+            int right = nums.length-1;
+            for(int left = i+1;left<nums.length&&left<right;left++){
+                if(left>i+1&&nums[left]==nums[left-1]){
+                    continue;
+                }
+                int sum = nums[left] + nums[right];
+                while(left<right&&sum>target){
+                    right--;
+                    sum = nums[right]+nums[left];
+                }
+                if(left<right&&sum == target){
+                    List<Integer>path = new ArrayList<>(List.of(nums[i],nums[left],nums[right]));
+                    ans.add(path);
+                }
+            }
+        }
+        return ans;
+    }
+
+    /**
+     * 复原IP地址
+     */
+    List<String>ans = new LinkedList<>();
+    List<String>path = new ArrayList<>();
+    public List<String>restoreIpAddresses(String s){
+        dfs(s,0);
+        return ans;
+    }
+    private void dfs(String s,int index){
+        if(path.size()==4&&index==s.length()){
+            StringBuilder str = new StringBuilder();
+            for(String t:path){
+                str.append(t);
+                str.append('.');
+            }
+            str.deleteCharAt(str.length()-1);
+            ans.add(str.toString());
+        }
+        for(int i = index+1;i<=s.length();i++){
+            String sub = s.substring(index,i);
+            if(check(sub)){
+                path.add(sub);
+                dfs(s,i);
+                path.removeLast();
+            }
+        }
+    }
+    private boolean check(String sub){
+        if(sub.length()>1&&sub.charAt(0)=='0') return false;
+        int sum = 0;
+        for(int i = 0;i<sub.length();i++){
+            char c = sub.charAt(i);
+            if(!Character.isDigit(c)){
+                return false;
+            }
+            sum*=10;
+            sum+=(c-'0');
+        }
+        return sum <= 255 && sum >= 0;
+    }
+
 
 
 }
