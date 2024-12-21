@@ -359,6 +359,9 @@ public class Solutions {
         }
     }
 
+    /**
+     * LRUCache
+     */
     private class LRUCache {
         private final int capacity;//容量
         Map<Integer, ListNode> map;//哈希表存储key-ListNode
@@ -411,6 +414,102 @@ public class Solutions {
                 this.val = val;
             }
         }//节点存储 key-value
+    }
+
+    /**
+     * 获取和最大的子串
+     * 当字串sum<0时就舍去之前的子串,重新计数
+     * @param nums 数组
+     * @return 返回结果
+     */
+    public int getMaxSum(int[]nums){
+        int ans = nums[0];
+        int sum = nums[0];
+        for(int i = 1;i<nums.length;i++){
+            if(sum < 0){
+                sum = nums[i];
+            }else{
+                sum+=nums[i];
+            }
+            ans = Math.max(ans,sum);
+        }
+        return ans;
+    }
+
+    /**
+     * 有效的括号
+     * 栈的使用
+     * @param s 字符串
+     * @return true or false
+     */
+    public boolean isValid(String s){
+        List<Character>stack = new LinkedList<>();
+        Map<Character,Character>map = new HashMap<>();
+        map.put(')','(');
+        map.put('}','{');
+        map.put(']','[');
+        boolean flag = false;
+        for(int i = 0;i<s.length();i++){
+            char c = s.charAt(i);
+            if(isLeft(c)){
+                stack.addLast(c);
+            }else{
+                if(stack.isEmpty()){
+                    return false;
+                }else{
+                    char left = stack.removeLast();
+                    if(map.get(c)!=left){
+                        return  false;
+                    }
+                }
+            }
+        }
+        return stack.isEmpty();
+    }
+    private boolean isLeft(char c){
+        return c == '(' || c == '{' || c == '[';
+    }
+
+    /**
+     * 两数之和
+     * 枚举:枚举左+遍历寻找右
+     * @param nums 数组
+     * @param target 目标和
+     * @return 返回索引·
+     */
+    public int[] twoSum(int[]nums,int target){
+        Map<Integer,Integer>map = new HashMap<>();
+        for(int i = 0;i<nums.length;i++){
+            int right = nums[i];
+            int left = target - right;
+            if(map.containsKey(left)){
+                return new int[]{map.get(left),i};
+            }
+            map.put(right,i);
+        }
+        return new int[]{-1,-1};
+    }
+
+    /**
+     * 二分查找
+     * 模板题目
+     * @param nums 有序数组
+     * @param target 目标值
+     * @return 返回索引
+     */
+    public int search(int[]nums,int target){
+        int left = 0,right = nums.length-1;
+        while(left<=right) {
+            int mid = (right - left) / 2 + left;
+            if (nums[mid] == target) {
+                return mid;
+            } else if (nums[mid] > target) {
+                right = mid - 1;
+            }else{
+                left = mid + 1;
+            }
+        }
+        return -1;
     }
 
 
