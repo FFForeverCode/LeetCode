@@ -512,5 +512,133 @@ public class Solutions {
         return -1;
     }
 
+    public int myAtio(String s){
+        char[]num = s.trim().toCharArray();
+        int res = 0,boundary = Integer.MAX_VALUE / 10;
+        int sign = 1, i = 1;
+        if(num.length == 0) return 0;
+        if(num[0]=='-') sign = -1;
+        else if(num[0] != '+') i = 0;
+        for(int j = i;j < num.length;j++){
+            if(num[j] < '0'||num[j] > '9') break;
+            //注意要提前判断 是否会超过2^32-1 因为超过后会溢出,导致数变小,无法再判断.
+            // 例如:8位 11111111+10000000 = 01111111->溢出导致数变小
+            if(res > boundary || res==boundary && num[j]>'7'){
+                return sign==1?Integer.MAX_VALUE:Integer.MIN_VALUE;
+            }
+            res = res * 10 + num[j] - '0';
+        }
+        return sign * res;
+
+    }
+
+    /**
+     * 最长回文子串
+     * @param s
+     * @return
+     */
+    public String getMaxString(String s){
+        //转移方程:dp[i][j]:i->j的子串是否为回文串
+        //dp[i][j]=dp[i+1][j-1]&&charAt[i] == charAt[j]
+        //初始化:dp[i][i]=true; dp[i][i+1]=if([i]==[i+1])
+        int len = s.length();
+        boolean[][]dp = new boolean[len][len];
+        for(int i = 0;i<len;i++){
+            dp[i][i] = true;
+        }
+        int maxLen = 1;
+        int begin = 0;
+        for(int Len = 2;Len <= len;Len++){
+            for(int left = 0;left<len;left++){
+                int right = left + Len -1;
+                if(right>=len) break;
+                if(s.charAt(left)!=s.charAt(right)){
+                    dp[left][right] = false;
+                }else{
+                    if(Len <= 2){
+                        dp[left][right] = true;
+                    }else{
+                        dp[left][right] = dp[left+1][right-1];
+                    }
+                }
+                if(dp[left][right]&&Len>maxLen){
+                    maxLen = Len;
+                    begin = left;
+                }
+            }
+        }
+        return s.substring(begin,begin+maxLen);
+    }
+
+    /**
+     * k个一组反转链表
+     * @param head 头节点
+     * @param k k个
+     * @return 返回新的头节点
+     */
+    public ListNode reverseKthList(ListNode head,int k){
+        ListNode dummyNode = new ListNode();
+        dummyNode.next = head;
+        ListNode pre = dummyNode;
+        ListNode left = head;
+        ListNode right = head;
+        int size = 1;
+        while(right != null){
+            if(size == k){
+                ListNode later = right.next;
+                right.next = null;
+                pre.next = reverse(left);
+                left.next = later;
+                pre = left;
+                left = later;
+                right = later;
+                size = 1;
+            }else{
+                size++;
+                right = right.next;
+            }
+        }
+        return dummyNode.next;
+
+
+    }
+
+    /**
+     * 反转链表
+     * @param head 头节点
+     * @return 返回新的头节点
+     */
+    private ListNode reverse(ListNode head){
+        ListNode pre = null;
+        ListNode cur = head;
+        while(cur != null){
+            ListNode later = cur.next;
+            cur.next = pre;
+            pre = cur;
+            cur = later;
+        }
+        return pre;
+    }
+    /**
+     * 删除倒数第N个节点
+     * 递归实现
+     * @param head 头节点
+     * @return 返回新的头节点
+     */
+    int index = 0;
+    public ListNode removeNthFromEnd(ListNode head,int n){
+        return removeHelp(head,n);
+    }
+    private ListNode removeHelp(ListNode cur,int n){
+        if(cur == null){
+            return null;
+        }
+        cur.next = removeHelp(cur.next,n);
+        index++;
+        if(index == n){
+            return cur.next;
+        }
+        return cur;
+    }
 
 }
