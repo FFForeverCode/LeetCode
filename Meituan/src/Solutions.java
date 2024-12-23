@@ -771,5 +771,53 @@ public class Solutions {
         }
     }
 
+    /**
+     * 字符串相加
+     * 难点在于处理大数不能用BigInt
+     * 超出long的范围的数要用字符串处理
+     * @param num1
+     * @param num2
+     * @return
+     */
+    public String addString(String num1,String num2){
+        char[]nums1 = num1.toCharArray();
+        char[]nums2 = num2.toCharArray();
+        int left1 = nums1.length-1;
+        int left2 = nums2.length-1;
+        String[]ans = new String[Math.max(left1,left2)+2];
+        Arrays.fill(ans,".");
+        int k = ans.length-1;
+        while(left1>=0||left2>=0){
+            int sum = 0;
+            if(left1>=0){
+                sum+=nums1[left1]-'0';
+            }
+            if(left2>=0){
+                sum+=nums2[left2]-'0';
+            }
+            if(!ans[k].equals(".")){
+                sum+=Integer.parseInt(ans[k]);
+            }
+            if(sum>=10){
+                int high = sum/10;
+                ans[k] = String.valueOf(sum%10);
+                ans[k-1] = String.valueOf(high);
+            }else{
+                ans[k] = String.valueOf(sum);
+            }
+            k--;
+            left1--;
+            left2--;
+        }
+        StringBuilder res = new StringBuilder();
+        for(String str:ans){
+            if(!str.equals(".")){
+                res.append(str);
+            }
+        }
+        return res.toString();
+
+    }
+
 
 }
