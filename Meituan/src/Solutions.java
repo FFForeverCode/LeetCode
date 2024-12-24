@@ -819,5 +819,82 @@ public class Solutions {
 
     }
 
+    /**
+     * 搜索旋转排序数组
+     * 二分法
+     * @param nums 旋转数组
+     * @param target 目标值
+     * @return 索引
+     */
+    public int searchIndex(int[]nums,int target){
+        int left = 0, right = nums.length-1;
+        if(nums[nums.length-1]==target) return nums.length-1;
+        boolean flag = target - nums[nums.length - 1] > 0;
+        while(left<=right){
+            int mid = (right - left)/2+left;
+            int find = nums[mid];
+            if(find == target){
+                return mid;
+            }else if(flag&&find>target){
+                right = mid-1;
+            }else if(flag){
+                if(find>nums[0]){
+                    left = mid+1;
+                }else{
+                    right = mid-1;
+                }
+            }else if(find>target){
+                if(find>nums[nums.length-1]){
+                    left = mid+1;
+                }else{
+                    right = mid -1;
+                }
+            }else{
+                left = mid+1;
+            }
+
+        }
+        return -1;
+    }
+
+    /**
+     * 二叉树的前序遍历
+     * mid left right
+     * @param root 根节点
+     * @return 返回遍历结果
+     */
+    List<Integer>treeRes = new ArrayList<>();
+    public List<Integer> preorderTraversal(TreeNode root){
+        travel(root);
+        return treeRes;
+    }
+    private void travel(TreeNode root){
+        if(root == null){
+            return;
+        }
+        treeRes.add(root.val);
+        travel(root.left);
+        travel(root.right);
+    }
+
+    /**
+     * 寻找最近的公共祖先节点
+     */
+    TreeNode ancestor = null;
+    public TreeNode lowestCommonAncestor(TreeNode root,TreeNode p,TreeNode q){
+        dfs(root,p,q);
+        return ancestor;
+    }
+    private boolean dfs(TreeNode root,TreeNode p,TreeNode q){
+        if(root == null) return false;
+        boolean lSon = dfs(root.left,p,q);
+        boolean rSon = dfs(root.right,p,q);
+        boolean isParent = (lSon&&rSon)||(root.val == p.val||root.val==q.val)&&(lSon||rSon);
+        if(isParent){
+            ancestor = root;
+        }
+        return (lSon||rSon)||(root.val==p.val||root.val == q.val);
+    }
+
 
 }
