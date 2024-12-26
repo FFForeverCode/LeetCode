@@ -896,5 +896,74 @@ public class Solutions {
         return (lSon||rSon)||(root.val==p.val||root.val == q.val);
     }
 
+    /**
+     * 最长的重复子数组
+     * @param nums1
+     * @param nums2
+     * @return
+     */
+    //TODO:还需思考
+    public int findLength(int[]nums1,int[] nums2){
+        //dp[i][j]:以i,j为开头的最长公共子串
+        //dp[i][j] = nums1[i]==nums2[j]?dp[i+1][j+1]+1:0;
+        int n = nums1.length;
+        int m = nums2.length;
+        int[][]dp = new int[n+1][m+1];
+        int ans = 0;
+        for(int i = n-1;i>=0;--i){
+            for(int j = m-1;j>=0;--j){
+                dp[i][j] = nums1[i]==nums2[j]?dp[i+1][j+1]+1:0;
+                ans = Math.max(ans,dp[i][j]);
+            }
+        }
+        return ans;
+    }
+
+    /**
+     * 库存管理III
+     * 快排
+     * @param stock
+     * @param cnt
+     * @return
+     */
+    public int[] inventoryManagement(int[] stock,int cnt){
+        sort(stock,0,stock.length-1);
+        int[]ans = new int[cnt];
+        for(int i = 0;i<cnt;i++){
+            ans[i] = stock[i];
+        }
+        return ans;
+    }
+
+    /**
+     * 快排
+     * @param nums
+     * @param left
+     * @param right
+     */
+    private void sort(int[]nums,int left,int right){
+        if(left<right){
+            int index = getIndex1(nums,left,right);
+            sort(nums,left,index-1);
+            sort(nums,index+1,right);
+        }
+    }
+    private int getIndex1(int[]nums,int left,int right){
+        int flag = nums[right];
+        int low = left-1;
+        for(int i = left;i<right;i++){
+            if(nums[i]<flag){
+                int temp = nums[i];
+                nums[i] = nums[++low];
+                nums[low] = temp;
+            }
+        }
+        int temp = nums[right];
+        nums[right] = nums[++low];
+        nums[low] = temp;
+        return low;
+    }
+
+
 
 }
