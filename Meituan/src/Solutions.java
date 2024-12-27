@@ -964,6 +964,64 @@ public class Solutions {
         return low;
     }
 
+    /**
+     * 合并K个链表数组
+     * @param lists
+     * @return
+     */
+    public ListNode mergeKLists(ListNode[]lists){
+        PriorityQueue<ListNode>MaxHeap = new PriorityQueue<>((o1,o2)->{return o1.val - o2.val;});
+        for (ListNode list : lists) {
+            ListNode head = list;
+            while (head != null) {
+                MaxHeap.offer(head);
+                head = head.next;
+            }
+        }
+        ListNode dummyNode = new ListNode();
+        ListNode pre = dummyNode;
+        while(!MaxHeap.isEmpty()){
+            pre.next = MaxHeap.poll();
+            pre = pre.next;
+        }
+        pre.next = null;
+        return dummyNode.next;
+    }
+
+    /**
+     * 二叉树的锯齿形层序遍历
+     * @param root
+     * @return
+     */
+    public List<List<Integer>> zigzagLevelOrder(TreeNode root){
+        List<List<Integer>>ans = new ArrayList<>();
+        if(root == null) return ans;
+        Queue<TreeNode>queue = new LinkedList<>();
+        queue.offer(root);
+        boolean flag = true;//左为true
+        while(!queue.isEmpty()){
+            int size = queue.size();
+            List<Integer>path = new LinkedList<>();
+            for(int i = 0;i<size;i++) {
+                TreeNode cur = queue.poll();
+                path.add(cur.val);
+                if(cur.left!=null) queue.offer(cur.left);
+                if(cur.right!=null) queue.offer(cur.right);
+            }
+            if(flag){
+                ans.add(path);
+            }else{
+                List<Integer>reverse = new ArrayList<>();
+                while(!path.isEmpty()){
+                    reverse.add(path.removeLast());
+                }
+                ans.add(reverse);
+            }
+            flag = !flag;
+        }
+        return ans;
+    }
+
 
 
 }
