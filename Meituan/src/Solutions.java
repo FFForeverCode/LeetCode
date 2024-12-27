@@ -1,3 +1,5 @@
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 
 /**
@@ -962,6 +964,164 @@ public class Solutions {
         nums[right] = nums[++low];
         nums[low] = temp;
         return low;
+    }
+
+    /**
+     * 合并K个链表数组
+     * @param lists
+     * @return
+     */
+    public ListNode mergeKLists(ListNode[]lists){
+        PriorityQueue<ListNode>MaxHeap = new PriorityQueue<>((o1,o2)->{return o1.val - o2.val;});
+        for (ListNode list : lists) {
+            ListNode head = list;
+            while (head != null) {
+                MaxHeap.offer(head);
+                head = head.next;
+            }
+        }
+        ListNode dummyNode = new ListNode();
+        ListNode pre = dummyNode;
+        while(!MaxHeap.isEmpty()){
+            pre.next = MaxHeap.poll();
+            pre = pre.next;
+        }
+        pre.next = null;
+        return dummyNode.next;
+    }
+
+    /**
+     * 二叉树的锯齿形层序遍历
+     * @param root
+     * @return
+     */
+    public List<List<Integer>> zigzagLevelOrder(TreeNode root){
+        List<List<Integer>>ans = new ArrayList<>();
+        if(root == null) return ans;
+        Queue<TreeNode>queue = new LinkedList<>();
+        queue.offer(root);
+        boolean flag = true;//左为true
+        while(!queue.isEmpty()){
+            int size = queue.size();
+            List<Integer>path = new LinkedList<>();
+            for(int i = 0;i<size;i++) {
+                TreeNode cur = queue.poll();
+                path.add(cur.val);
+                if(cur.left!=null) queue.offer(cur.left);
+                if(cur.right!=null) queue.offer(cur.right);
+            }
+            if(flag){
+                ans.add(path);
+            }else{
+                List<Integer>reverse = new ArrayList<>();
+                while(!path.isEmpty()){
+                    reverse.add(path.removeLast());
+                }
+                ans.add(reverse);
+            }
+            flag = !flag;
+        }
+        return ans;
+    }
+
+    /**
+     * 滑动窗口最大值
+     * @param nums array
+     * @param k k个大小的窗口
+     * @return
+     */
+    public int[] maxSlidingWindow(int[] nums,int k){
+        int[]res = new int[nums.length-k+1];
+        int left = 0, right;
+        //int[]map; map[0]=索引 map[1]存储的值
+        //注意：根据索引判断该值是否有效，优先级队列存储值
+        PriorityQueue<int[]>queue = new PriorityQueue<>((o1,o2)->{return o2[1]-o1[1];});
+        for(right = 0;right<nums.length;right++){
+            int[]map = new int[]{right,nums[right]};
+            queue.offer(map);
+            if(right - left + 1 == k){
+               while(!queue.isEmpty()&&queue.peek()[0]<left){
+                   queue.poll();
+               }
+               res[left] = queue.peek()[1];
+               if(!queue.isEmpty()&&queue.peek()[0]==left){
+                   queue.poll();
+               }
+               left++;
+            }
+        }
+        return res;
+    }
+
+    /**
+     * 中序遍历
+     * @param root
+     * @return
+     */
+    public List<Integer> inorderTraversal(TreeNode root){
+        return dfs(root,new ArrayList<>());
+    }
+    private List<Integer>dfs(TreeNode root,List<Integer>list){
+        if(root == null){
+            return list;
+        }
+        dfs(root.left,list);
+        list.add(root.val);
+        dfs(root.right,list);
+        return list;
+    }
+
+    /**
+     * 子集 回溯 相当于穷举
+     * 与排列不同，子集需要保证不同
+     * @param nums
+     * @return
+     */
+    private List<List<Integer>>ans2 = new ArrayList<>();
+    private List<Integer>path2 = new ArrayList<>();
+    public List<List<Integer>> subsets(int[] nums) {
+        ans2.add(new ArrayList<>());
+        for(int i = 0;i<nums.length;i++){
+            dfs(nums,i);
+        }
+        return ans2;
+    }
+    private void dfs(int[]nums,int start){
+        if(start == nums.length){
+            return;
+        }
+        path2.add(nums[start]);
+        ans2.add(new ArrayList<>(path2));
+        for(int i = start+1;i<nums.length;i++){
+            dfs(nums,i);
+        }
+        path2.removeLast();
+    }
+
+    /**
+     * 思路正确，但是测试数字太大了，超过了8字节 long的范围
+     * @param l1
+     * @param l2
+     * @return
+     */
+    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+        long sum = getSum(l1,0) + getSum(l2,0);
+        ListNode dummyNode = new ListNode();
+        ListNode pre = dummyNode;
+        while(sum>0){
+            long num = sum%10;
+            pre.next = new ListNode((int)num);
+            sum/=10;
+            pre = pre.next;
+        }
+        pre.next = null;
+        return dummyNode.next;
+    }
+    private long getSum(ListNode head,int n){
+        if(head == null){
+          return 0;
+        }
+        return (int)(Math.pow(10,n)*head.val + getSum(head.next,n+1));
     }
 
 
