@@ -1125,5 +1125,56 @@ public class Solutions {
     }
 
 
+    /**
+     * 字符串相乘
+     * @param num1
+     * @param num2
+     * @return
+     */
+    public String multiply(String num1, String num2) {
+        return null;
+    }
+
+    /**
+     * 最长公共子序列
+     * @param text1
+     * @param text2
+     * @return
+     */
+    public int longestCommonSubsequence(String text1, String text2) {
+        //确定状态：dp[i][j]:以第i，j个字符为结尾的最长子序列
+        //dp[i][j] = dp[i-1][j-1]+1&&i==j,Math.max(dp[i][j-1],dp[i-1][j])
+        //初始化dp[0]
+        int n = text1.length();
+        int m = text2.length();
+        int[][]dp = new int[n+1][m+1];
+        for(int row = 1;row<n;row++){
+            for(int col = 1;col<m;col++){
+                if(text1.charAt(row)==text2.charAt(col)){
+                    dp[row][col] = dp[row-1][col-1]+1;
+                }else{
+                    dp[row][col] = Math.max(dp[row-1][col],dp[row][col-1]);
+                }
+            }
+        }
+        return dp[n][m];
+    }
+
+    /**
+     * 原地算法
+     * @param nums
+     * @return
+     */
+    public int removeDuplicates(int[] nums) {
+        int left = 1;
+        for(int right = 1;right<nums.length;right++){
+            if(nums[right]!=nums[right-1]){
+                nums[left++] = nums[right];
+            }
+        }
+        return left;
+    }
+
+
 
 }
