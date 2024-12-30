@@ -6,6 +6,7 @@ import java.util.*;
  * @author ForeverCode
  * &#064;date  2024/12/17
  */
+//美团
 public class Solutions {
     //2024-12-17
 
@@ -647,6 +648,10 @@ public class Solutions {
         int val;
         TreeNode left;
         TreeNode right;
+
+        public TreeNode(int i) {
+            val = i;
+        }
     }
 
     public class ListNode {
@@ -1123,6 +1128,136 @@ public class Solutions {
         }
         return (int)(Math.pow(10,n)*head.val + getSum(head.next,n+1));
     }
+
+
+    /**
+     * 字符串相乘
+     * @param num1
+     * @param num2
+     * @return
+     */
+    public String multiply(String num1, String num2) {
+        return null;
+    }
+
+    /**
+     * 最长公共子序列
+     * @param text1
+     * @param text2
+     * @return
+     */
+    public int longestCommonSubsequence(String text1, String text2) {
+        //确定状态：dp[i][j]:以第i，j个字符为结尾的最长子序列
+        //dp[i][j] = dp[i-1][j-1]+1&&i==j,Math.max(dp[i][j-1],dp[i-1][j])
+        //初始化dp[0]
+        int n = text1.length();
+        int m = text2.length();
+        int[][]dp = new int[n+1][m+1];
+        for(int row = 1;row<n;row++){
+            for(int col = 1;col<m;col++){
+                if(text1.charAt(row)==text2.charAt(col)){
+                    dp[row][col] = dp[row-1][col-1]+1;
+                }else{
+                    dp[row][col] = Math.max(dp[row-1][col],dp[row][col-1]);
+                }
+            }
+        }
+        return dp[n][m];
+    }
+
+    /**
+     * 原地算法
+     * @param nums
+     * @return
+     */
+    public int removeDuplicates(int[] nums) {
+        int left = 1;
+        for(int right = 1;right<nums.length;right++){
+            if(nums[right]!=nums[right-1]){
+                nums[left++] = nums[right];
+            }
+        }
+        return left;
+    }
+
+    /**
+     * 缺失的第一个正数
+     * @param nums
+     * @return
+     */
+    public int firstMissingPositive(int[] nums){
+        boolean[]flag = new boolean[nums.length+1];
+        for(int i:nums){
+            if(i>nums.length||i<0) continue;
+            flag[i] = true;
+        }
+        for(int i = 1;i<=nums.length;i++){
+            if(!flag[i]){
+                return i;
+            }
+        }
+        return nums.length+1;
+    }
+
+    /**
+     * 求根节点到叶节点数字之和
+     */
+    private List<StringBuilder>res = new ArrayList<>();
+    private StringBuilder str = new StringBuilder();
+    public int sumNumbers(TreeNode root) {
+        dfs(root);
+        int sum = 0;
+        for(StringBuilder path:res){
+            sum+=Integer.parseInt(path.toString());
+        }
+        return sum;
+    }
+
+    private void dfs(TreeNode root){
+        if(root == null) return;
+        if(root.left == null&&root.right==null){
+            str.append(root.val);
+            res.add(new StringBuilder(str));
+            str.deleteCharAt(str.length()-1);
+            return;
+        }
+        str.append(root.val);
+        dfs(root.left);
+        dfs(root.right);
+        str.deleteCharAt(str.length()-1);
+    }
+
+    /**
+     * 从前序与中序遍历序列构造二叉树
+     * @param preorder 中 左 右
+     * @param inorder 左 中 右
+     * @return
+     */
+    Map<Integer,Integer>map = new HashMap<>();
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+        for(int i = 0;i<inorder.length;i++){
+            map.put(inorder[i],i);
+        }
+        return buildTreeHelp(preorder,inorder,0,preorder.length-1,0,inorder.length-1);
+    }
+    private TreeNode buildTreeHelp(int[] preorder,int[] inorder,int preLeft,int preRight,int inLeft,int inRight){
+        if(preLeft > preRight){
+            return null;
+        }
+        int preRoot = preLeft;
+        int inOrderRoot = map.get(preorder[preRoot]);
+        TreeNode Root =  new TreeNode(preorder[preRoot]);
+        int leftSize = inOrderRoot - inLeft;
+        Root.left = buildTreeHelp(preorder,inorder,preLeft+1,preLeft+leftSize,inLeft,inOrderRoot-1);
+        Root.right = buildTreeHelp(preorder,inorder,preLeft+leftSize+1,preRight,inOrderRoot+1,inRight);
+        return Root;
+
+
+    }
+
+
+
+
 
 
 
