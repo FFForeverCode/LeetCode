@@ -6,6 +6,7 @@ import java.util.*;
  * @author ForeverCode
  * &#064;date  2024/12/17
  */
+//美团
 public class Solutions {
     //2024-12-17
 
@@ -647,6 +648,10 @@ public class Solutions {
         int val;
         TreeNode left;
         TreeNode right;
+
+        public TreeNode(int i) {
+            val = i;
+        }
     }
 
     public class ListNode {
@@ -1174,6 +1179,85 @@ public class Solutions {
         }
         return left;
     }
+
+    /**
+     * 缺失的第一个正数
+     * @param nums
+     * @return
+     */
+    public int firstMissingPositive(int[] nums){
+        boolean[]flag = new boolean[nums.length+1];
+        for(int i:nums){
+            if(i>nums.length||i<0) continue;
+            flag[i] = true;
+        }
+        for(int i = 1;i<=nums.length;i++){
+            if(!flag[i]){
+                return i;
+            }
+        }
+        return nums.length+1;
+    }
+
+    /**
+     * 求根节点到叶节点数字之和
+     */
+    private List<StringBuilder>res = new ArrayList<>();
+    private StringBuilder str = new StringBuilder();
+    public int sumNumbers(TreeNode root) {
+        dfs(root);
+        int sum = 0;
+        for(StringBuilder path:res){
+            sum+=Integer.parseInt(path.toString());
+        }
+        return sum;
+    }
+
+    private void dfs(TreeNode root){
+        if(root == null) return;
+        if(root.left == null&&root.right==null){
+            str.append(root.val);
+            res.add(new StringBuilder(str));
+            str.deleteCharAt(str.length()-1);
+            return;
+        }
+        str.append(root.val);
+        dfs(root.left);
+        dfs(root.right);
+        str.deleteCharAt(str.length()-1);
+    }
+
+    /**
+     * 从前序与中序遍历序列构造二叉树
+     * @param preorder 中 左 右
+     * @param inorder 左 中 右
+     * @return
+     */
+    Map<Integer,Integer>map = new HashMap<>();
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+        for(int i = 0;i<inorder.length;i++){
+            map.put(inorder[i],i);
+        }
+        return buildTreeHelp(preorder,inorder,0,preorder.length-1,0,inorder.length-1);
+    }
+    private TreeNode buildTreeHelp(int[] preorder,int[] inorder,int preLeft,int preRight,int inLeft,int inRight){
+        if(preLeft > preRight){
+            return null;
+        }
+        int preRoot = preLeft;
+        int inOrderRoot = map.get(preorder[preRoot]);
+        TreeNode Root =  new TreeNode(preorder[preRoot]);
+        int leftSize = inOrderRoot - inLeft;
+        Root.left = buildTreeHelp(preorder,inorder,preLeft+1,preLeft+leftSize,inLeft,inOrderRoot-1);
+        Root.right = buildTreeHelp(preorder,inorder,preLeft+leftSize+1,preRight,inOrderRoot+1,inRight);
+        return Root;
+
+
+    }
+
+
+
+
 
 
 
