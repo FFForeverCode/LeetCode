@@ -1,5 +1,3 @@
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.*;
 
 /**
@@ -27,6 +25,41 @@ public class Solutions {
      * @return 返回新的头节点
      */
     int index = 0;
+    /**
+     * 子集 回溯 相当于穷举
+     * 与排列不同，子集需要保证不同
+     *
+     * @param nums
+     * @return
+     */
+    private final List<List<Integer>> ans2 = new ArrayList<>();
+    private final List<Integer> path2 = new ArrayList<>();
+    /**
+     * 求根节点到叶节点数字之和
+     */
+    private final List<StringBuilder> res = new ArrayList<>();
+    //2024-12-18
+    private final StringBuilder str = new StringBuilder();
+    /**
+     * 二叉树的前序遍历
+     * mid left right
+     *
+     * @param root 根节点
+     * @return 返回遍历结果
+     */
+    List<Integer> treeRes = new ArrayList<>();
+    /**
+     * 寻找最近的公共祖先节点
+     */
+    TreeNode ancestor = null;
+    /**
+     * 从前序与中序遍历序列构造二叉树
+     *
+     * @param preorder 中 左 右
+     * @param inorder 左 中 右
+     * @return
+     */
+    Map<Integer, Integer> map = new HashMap<>();
 
     /**
      * 手撕快速排序
@@ -95,9 +128,6 @@ public class Solutions {
             MaxHeap(nums, i, Size);
         }
     }
-
-
-    //2024-12-18
 
     private void MaxHeap(int[] nums, int i, int Size) {
         int l = i * 2 + 1, r = i * 2 + 2, largest = i;
@@ -644,6 +674,502 @@ public class Solutions {
         return ans.toArray(new int[ans.size()][]);
     }
 
+    /**
+     * 字符串相加
+     * 难点在于处理大数不能用BigInt
+     * 超出long的范围的数要用字符串处理
+     *
+     * @param num1
+     * @param num2
+     * @return
+     */
+    public String addString(String num1, String num2) {
+        char[] nums1 = num1.toCharArray();
+        char[] nums2 = num2.toCharArray();
+        int left1 = nums1.length - 1;
+        int left2 = nums2.length - 1;
+        String[] ans = new String[Math.max(left1, left2) + 2];
+        Arrays.fill(ans, ".");
+        int k = ans.length - 1;
+        while (left1 >= 0 || left2 >= 0) {
+            int sum = 0;
+            if (left1 >= 0) {
+                sum += nums1[left1] - '0';
+            }
+            if (left2 >= 0) {
+                sum += nums2[left2] - '0';
+            }
+            if (!ans[k].equals(".")) {
+                sum += Integer.parseInt(ans[k]);
+            }
+            if (sum >= 10) {
+                int high = sum / 10;
+                ans[k] = String.valueOf(sum % 10);
+                ans[k - 1] = String.valueOf(high);
+            } else {
+                ans[k] = String.valueOf(sum);
+            }
+            k--;
+            left1--;
+            left2--;
+        }
+        StringBuilder res = new StringBuilder();
+        for (String str : ans) {
+            if (!str.equals(".")) {
+                res.append(str);
+            }
+        }
+        return res.toString();
+
+    }
+
+    /**
+     * 搜索旋转排序数组
+     * 二分法
+     *
+     * @param nums   旋转数组
+     * @param target 目标值
+     * @return 索引
+     */
+    public int searchIndex(int[] nums, int target) {
+        int left = 0, right = nums.length - 1;
+        if (nums[nums.length - 1] == target) return nums.length - 1;
+        boolean flag = target - nums[nums.length - 1] > 0;
+        while (left <= right) {
+            int mid = (right - left) / 2 + left;
+            int find = nums[mid];
+            if (find == target) {
+                return mid;
+            } else if (flag && find > target) {
+                right = mid - 1;
+            } else if (flag) {
+                if (find > nums[0]) {
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
+                }
+            } else if (find > target) {
+                if (find > nums[nums.length - 1]) {
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
+                }
+            } else {
+                left = mid + 1;
+            }
+
+        }
+        return -1;
+    }
+
+    public List<Integer> preorderTraversal(TreeNode root) {
+        travel(root);
+        return treeRes;
+    }
+
+    private void travel(TreeNode root) {
+        if (root == null) {
+            return;
+        }
+        treeRes.add(root.val);
+        travel(root.left);
+        travel(root.right);
+    }
+
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        dfs(root, p, q);
+        return ancestor;
+    }
+
+    private boolean dfs(TreeNode root, TreeNode p, TreeNode q) {
+        if (root == null) return false;
+        boolean lSon = dfs(root.left, p, q);
+        boolean rSon = dfs(root.right, p, q);
+        boolean isParent = (lSon && rSon) || (root.val == p.val || root.val == q.val) && (lSon || rSon);
+        if (isParent) {
+            ancestor = root;
+        }
+        return (lSon || rSon) || (root.val == p.val || root.val == q.val);
+    }
+
+    /**
+     * 最长的重复子数组
+     *
+     * @param nums1
+     * @param nums2
+     * @return
+     */
+    //TODO:还需思考
+    public int findLength(int[] nums1, int[] nums2) {
+        //dp[i][j]:以i,j为开头的最长公共子串
+        //dp[i][j] = nums1[i]==nums2[j]?dp[i+1][j+1]+1:0;
+        int n = nums1.length;
+        int m = nums2.length;
+        int[][] dp = new int[n + 1][m + 1];
+        int ans = 0;
+        for (int i = n - 1; i >= 0; --i) {
+            for (int j = m - 1; j >= 0; --j) {
+                dp[i][j] = nums1[i] == nums2[j] ? dp[i + 1][j + 1] + 1 : 0;
+                ans = Math.max(ans, dp[i][j]);
+            }
+        }
+        return ans;
+    }
+
+    /**
+     * 库存管理III
+     * 快排
+     *
+     * @param stock
+     * @param cnt
+     * @return
+     */
+    public int[] inventoryManagement(int[] stock, int cnt) {
+        sort(stock, 0, stock.length - 1);
+        int[] ans = new int[cnt];
+        System.arraycopy(stock, 0, ans, 0, cnt);
+        return ans;
+    }
+
+    /**
+     * 快排
+     *
+     * @param nums
+     * @param left
+     * @param right
+     */
+    private void sort(int[] nums, int left, int right) {
+        if (left < right) {
+            int index = getIndex1(nums, left, right);
+            sort(nums, left, index - 1);
+            sort(nums, index + 1, right);
+        }
+    }
+
+    private int getIndex1(int[] nums, int left, int right) {
+        int flag = nums[right];
+        int low = left - 1;
+        for (int i = left; i < right; i++) {
+            if (nums[i] < flag) {
+                int temp = nums[i];
+                nums[i] = nums[++low];
+                nums[low] = temp;
+            }
+        }
+        int temp = nums[right];
+        nums[right] = nums[++low];
+        nums[low] = temp;
+        return low;
+    }
+
+    /**
+     * 合并K个链表数组
+     *
+     * @param lists
+     * @return
+     */
+    public ListNode mergeKLists(ListNode[] lists) {
+        PriorityQueue<ListNode> MaxHeap = new PriorityQueue<>((o1, o2) -> {
+            return o1.val - o2.val;
+        });
+        for (ListNode list : lists) {
+            ListNode head = list;
+            while (head != null) {
+                MaxHeap.offer(head);
+                head = head.next;
+            }
+        }
+        ListNode dummyNode = new ListNode();
+        ListNode pre = dummyNode;
+        while (!MaxHeap.isEmpty()) {
+            pre.next = MaxHeap.poll();
+            pre = pre.next;
+        }
+        pre.next = null;
+        return dummyNode.next;
+    }
+
+    /**
+     * 二叉树的锯齿形层序遍历
+     *
+     * @param root
+     * @return
+     */
+    public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
+        List<List<Integer>> ans = new ArrayList<>();
+        if (root == null) return ans;
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+        boolean flag = true;//左为true
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            List<Integer> path = new LinkedList<>();
+            for (int i = 0; i < size; i++) {
+                TreeNode cur = queue.poll();
+                path.add(cur.val);
+                if (cur.left != null) queue.offer(cur.left);
+                if (cur.right != null) queue.offer(cur.right);
+            }
+            if (flag) {
+                ans.add(path);
+            } else {
+                List<Integer> reverse = new ArrayList<>();
+                while (!path.isEmpty()) {
+                    reverse.add(path.removeLast());
+                }
+                ans.add(reverse);
+            }
+            flag = !flag;
+        }
+        return ans;
+    }
+
+    /**
+     * 滑动窗口最大值
+     *
+     * @param nums array
+     * @param k    k个大小的窗口
+     * @return
+     */
+    public int[] maxSlidingWindow(int[] nums, int k) {
+        int[] res = new int[nums.length - k + 1];
+        int left = 0, right;
+        //int[]map; map[0]=索引 map[1]存储的值
+        //注意：根据索引判断该值是否有效，优先级队列存储值
+        PriorityQueue<int[]> queue = new PriorityQueue<>((o1, o2) -> {
+            return o2[1] - o1[1];
+        });
+        for (right = 0; right < nums.length; right++) {
+            int[] map = new int[]{right, nums[right]};
+            queue.offer(map);
+            if (right - left + 1 == k) {
+                while (!queue.isEmpty() && queue.peek()[0] < left) {
+                    queue.poll();
+                }
+                res[left] = queue.peek()[1];
+                if (!queue.isEmpty() && queue.peek()[0] == left) {
+                    queue.poll();
+                }
+                left++;
+            }
+        }
+        return res;
+    }
+
+    /**
+     * 中序遍历
+     *
+     * @param root
+     * @return
+     */
+    public List<Integer> inorderTraversal(TreeNode root) {
+        return dfs(root, new ArrayList<>());
+    }
+
+    private List<Integer> dfs(TreeNode root, List<Integer> list) {
+        if (root == null) {
+            return list;
+        }
+        dfs(root.left, list);
+        list.add(root.val);
+        dfs(root.right, list);
+        return list;
+    }
+
+    public List<List<Integer>> subsets(int[] nums) {
+        ans2.add(new ArrayList<>());
+        for (int i = 0; i < nums.length; i++) {
+            dfs(nums, i);
+        }
+        return ans2;
+    }
+
+    private void dfs(int[] nums, int start) {
+        if (start == nums.length) {
+            return;
+        }
+        path2.add(nums[start]);
+        ans2.add(new ArrayList<>(path2));
+        for (int i = start + 1; i < nums.length; i++) {
+            dfs(nums, i);
+        }
+        path2.removeLast();
+    }
+
+    /**
+     * 思路正确，但是测试数字太大了，超过了8字节 long的范围
+     *
+     * @param l1
+     * @param l2
+     * @return
+     */
+    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+        long sum = getSum(l1, 0) + getSum(l2, 0);
+        ListNode dummyNode = new ListNode();
+        ListNode pre = dummyNode;
+        while (sum > 0) {
+            long num = sum % 10;
+            pre.next = new ListNode((int) num);
+            sum /= 10;
+            pre = pre.next;
+        }
+        pre.next = null;
+        return dummyNode.next;
+    }
+
+    private long getSum(ListNode head, int n) {
+        if (head == null) {
+            return 0;
+        }
+        return (int) (Math.pow(10, n) * head.val + getSum(head.next, n + 1));
+    }
+
+    /**
+     * 字符串相乘
+     *
+     * @param num1
+     * @param num2
+     * @return
+     */
+    public String multiply(String num1, String num2) {
+        return null;
+    }
+
+    /**
+     * 最长公共子序列
+     *
+     * @param text1
+     * @param text2
+     * @return
+     */
+    public int longestCommonSubsequence(String text1, String text2) {
+        //确定状态：dp[i][j]:以第i，j个字符为结尾的最长子序列
+        //dp[i][j] = dp[i-1][j-1]+1&&i==j,Math.max(dp[i][j-1],dp[i-1][j])
+        //初始化dp[0]
+        int n = text1.length();
+        int m = text2.length();
+        int[][] dp = new int[n + 1][m + 1];
+        for (int row = 1; row < n; row++) {
+            for (int col = 1; col < m; col++) {
+                if (text1.charAt(row) == text2.charAt(col)) {
+                    dp[row][col] = dp[row - 1][col - 1] + 1;
+                } else {
+                    dp[row][col] = Math.max(dp[row - 1][col], dp[row][col - 1]);
+                }
+            }
+        }
+        return dp[n][m];
+    }
+
+    /**
+     * 原地算法
+     *
+     * @param nums
+     * @return
+     */
+    public int removeDuplicates(int[] nums) {
+        int left = 1;
+        for (int right = 1; right < nums.length; right++) {
+            if (nums[right] != nums[right - 1]) {
+                nums[left++] = nums[right];
+            }
+        }
+        return left;
+    }
+
+    /**
+     * 缺失的第一个正数
+     *
+     * @param nums
+     * @return
+     */
+    public int firstMissingPositive(int[] nums) {
+        boolean[] flag = new boolean[nums.length + 1];
+        for (int i : nums) {
+            if (i > nums.length || i < 0) continue;
+            flag[i] = true;
+        }
+        for (int i = 1; i <= nums.length; i++) {
+            if (!flag[i]) {
+                return i;
+            }
+        }
+        return nums.length + 1;
+    }
+
+    public int sumNumbers(TreeNode root) {
+        dfs(root);
+        int sum = 0;
+        for (StringBuilder path : res) {
+            sum += Integer.parseInt(path.toString());
+        }
+        return sum;
+    }
+
+    private void dfs(TreeNode root) {
+        if (root == null) return;
+        if (root.left == null && root.right == null) {
+            str.append(root.val);
+            res.add(new StringBuilder(str));
+            str.deleteCharAt(str.length() - 1);
+            return;
+        }
+        str.append(root.val);
+        dfs(root.left);
+        dfs(root.right);
+        str.deleteCharAt(str.length() - 1);
+    }
+
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+        for (int i = 0; i < inorder.length; i++) {
+            map.put(inorder[i], i);
+        }
+        return buildTreeHelp(preorder, inorder, 0, preorder.length - 1, 0, inorder.length - 1);
+    }
+
+    private TreeNode buildTreeHelp(int[] preorder, int[] inorder, int preLeft, int preRight, int inLeft, int inRight) {
+        if (preLeft > preRight) {
+            return null;
+        }
+        int preRoot = preLeft;
+        int inOrderRoot = map.get(preorder[preRoot]);
+        TreeNode Root = new TreeNode(preorder[preRoot]);
+        int leftSize = inOrderRoot - inLeft;
+        Root.left = buildTreeHelp(preorder, inorder, preLeft + 1, preLeft + leftSize, inLeft, inOrderRoot - 1);
+        Root.right = buildTreeHelp(preorder, inorder, preLeft + leftSize + 1, preRight, inOrderRoot + 1, inRight);
+        return Root;
+    }
+
+    /**
+     * 接雨水
+     *
+     * @param height
+     * @return
+     */
+    public int trap(int[] height) {
+        Stack<Integer> stack = new Stack<>();
+        int sum = 0;
+        for (int i = 0; i < height.length; i++) {
+            if (stack.isEmpty()) {
+                stack.push(i);
+                continue;
+            }
+            if (height[stack.peek()] >= height[i]) {
+                stack.push(i);
+                continue;
+            }
+            while (!stack.isEmpty() && height[stack.peek()] < height[i]) {
+                int mid = stack.pop();
+                if (stack.isEmpty()) break;
+                int width = i - stack.peek() - 1;
+                int h = Math.min(height[stack.peek()], height[i]) - height[mid];
+                sum += (width * h);
+            }
+            stack.push(i);
+        }
+        return sum;
+    }
+
     public static class TreeNode {
         int val;
         TreeNode left;
@@ -778,487 +1304,69 @@ public class Solutions {
         }
     }
 
-    /**
-     * 字符串相加
-     * 难点在于处理大数不能用BigInt
-     * 超出long的范围的数要用字符串处理
-     * @param num1
-     * @param num2
-     * @return
-     */
-    public String addString(String num1,String num2){
-        char[]nums1 = num1.toCharArray();
-        char[]nums2 = num2.toCharArray();
-        int left1 = nums1.length-1;
-        int left2 = nums2.length-1;
-        String[]ans = new String[Math.max(left1,left2)+2];
-        Arrays.fill(ans,".");
-        int k = ans.length-1;
-        while(left1>=0||left2>=0){
-            int sum = 0;
-            if(left1>=0){
-                sum+=nums1[left1]-'0';
-            }
-            if(left2>=0){
-                sum+=nums2[left2]-'0';
-            }
-            if(!ans[k].equals(".")){
-                sum+=Integer.parseInt(ans[k]);
-            }
-            if(sum>=10){
-                int high = sum/10;
-                ans[k] = String.valueOf(sum%10);
-                ans[k-1] = String.valueOf(high);
-            }else{
-                ans[k] = String.valueOf(sum);
-            }
-            k--;
-            left1--;
-            left2--;
-        }
-        StringBuilder res = new StringBuilder();
-        for(String str:ans){
-            if(!str.equals(".")){
-                res.append(str);
-            }
-        }
-        return res.toString();
-
-    }
 
     /**
-     * 搜索旋转排序数组
-     * 二分法
-     * @param nums 旋转数组
-     * @param target 目标值
-     * @return 索引
-     */
-    public int searchIndex(int[]nums,int target){
-        int left = 0, right = nums.length-1;
-        if(nums[nums.length-1]==target) return nums.length-1;
-        boolean flag = target - nums[nums.length - 1] > 0;
-        while(left<=right){
-            int mid = (right - left)/2+left;
-            int find = nums[mid];
-            if(find == target){
-                return mid;
-            }else if(flag&&find>target){
-                right = mid-1;
-            }else if(flag){
-                if(find>nums[0]){
-                    left = mid+1;
-                }else{
-                    right = mid-1;
-                }
-            }else if(find>target){
-                if(find>nums[nums.length-1]){
-                    left = mid+1;
-                }else{
-                    right = mid -1;
-                }
-            }else{
-                left = mid+1;
-            }
-
-        }
-        return -1;
-    }
-
-    /**
-     * 二叉树的前序遍历
-     * mid left right
-     * @param root 根节点
-     * @return 返回遍历结果
-     */
-    List<Integer>treeRes = new ArrayList<>();
-    public List<Integer> preorderTraversal(TreeNode root){
-        travel(root);
-        return treeRes;
-    }
-    private void travel(TreeNode root){
-        if(root == null){
-            return;
-        }
-        treeRes.add(root.val);
-        travel(root.left);
-        travel(root.right);
-    }
-
-    /**
-     * 寻找最近的公共祖先节点
-     */
-    TreeNode ancestor = null;
-    public TreeNode lowestCommonAncestor(TreeNode root,TreeNode p,TreeNode q){
-        dfs(root,p,q);
-        return ancestor;
-    }
-    private boolean dfs(TreeNode root,TreeNode p,TreeNode q){
-        if(root == null) return false;
-        boolean lSon = dfs(root.left,p,q);
-        boolean rSon = dfs(root.right,p,q);
-        boolean isParent = (lSon&&rSon)||(root.val == p.val||root.val==q.val)&&(lSon||rSon);
-        if(isParent){
-            ancestor = root;
-        }
-        return (lSon||rSon)||(root.val==p.val||root.val == q.val);
-    }
-
-    /**
-     * 最长的重复子数组
-     * @param nums1
-     * @param nums2
-     * @return
-     */
-    //TODO:还需思考
-    public int findLength(int[]nums1,int[] nums2){
-        //dp[i][j]:以i,j为开头的最长公共子串
-        //dp[i][j] = nums1[i]==nums2[j]?dp[i+1][j+1]+1:0;
-        int n = nums1.length;
-        int m = nums2.length;
-        int[][]dp = new int[n+1][m+1];
-        int ans = 0;
-        for(int i = n-1;i>=0;--i){
-            for(int j = m-1;j>=0;--j){
-                dp[i][j] = nums1[i]==nums2[j]?dp[i+1][j+1]+1:0;
-                ans = Math.max(ans,dp[i][j]);
-            }
-        }
-        return ans;
-    }
-
-    /**
-     * 库存管理III
-     * 快排
-     * @param stock
-     * @param cnt
-     * @return
-     */
-    public int[] inventoryManagement(int[] stock,int cnt){
-        sort(stock,0,stock.length-1);
-        int[]ans = new int[cnt];
-        for(int i = 0;i<cnt;i++){
-            ans[i] = stock[i];
-        }
-        return ans;
-    }
-
-    /**
-     * 快排
-     * @param nums
-     * @param left
-     * @param right
-     */
-    private void sort(int[]nums,int left,int right){
-        if(left<right){
-            int index = getIndex1(nums,left,right);
-            sort(nums,left,index-1);
-            sort(nums,index+1,right);
-        }
-    }
-    private int getIndex1(int[]nums,int left,int right){
-        int flag = nums[right];
-        int low = left-1;
-        for(int i = left;i<right;i++){
-            if(nums[i]<flag){
-                int temp = nums[i];
-                nums[i] = nums[++low];
-                nums[low] = temp;
-            }
-        }
-        int temp = nums[right];
-        nums[right] = nums[++low];
-        nums[low] = temp;
-        return low;
-    }
-
-    /**
-     * 合并K个链表数组
-     * @param lists
-     * @return
-     */
-    public ListNode mergeKLists(ListNode[]lists){
-        PriorityQueue<ListNode>MaxHeap = new PriorityQueue<>((o1,o2)->{return o1.val - o2.val;});
-        for (ListNode list : lists) {
-            ListNode head = list;
-            while (head != null) {
-                MaxHeap.offer(head);
-                head = head.next;
-            }
-        }
-        ListNode dummyNode = new ListNode();
-        ListNode pre = dummyNode;
-        while(!MaxHeap.isEmpty()){
-            pre.next = MaxHeap.poll();
-            pre = pre.next;
-        }
-        pre.next = null;
-        return dummyNode.next;
-    }
-
-    /**
-     * 二叉树的锯齿形层序遍历
+     * 二叉树的直径
      * @param root
      * @return
      */
-    public List<List<Integer>> zigzagLevelOrder(TreeNode root){
-        List<List<Integer>>ans = new ArrayList<>();
-        if(root == null) return ans;
-        Queue<TreeNode>queue = new LinkedList<>();
-        queue.offer(root);
-        boolean flag = true;//左为true
-        while(!queue.isEmpty()){
-            int size = queue.size();
-            List<Integer>path = new LinkedList<>();
-            for(int i = 0;i<size;i++) {
-                TreeNode cur = queue.poll();
-                path.add(cur.val);
-                if(cur.left!=null) queue.offer(cur.left);
-                if(cur.right!=null) queue.offer(cur.right);
-            }
-            if(flag){
-                ans.add(path);
-            }else{
-                List<Integer>reverse = new ArrayList<>();
-                while(!path.isEmpty()){
-                    reverse.add(path.removeLast());
-                }
-                ans.add(reverse);
-            }
-            flag = !flag;
-        }
-        return ans;
+    int res1 = 0;
+    public int diameterOfBinaryTree(TreeNode root) {
+        getLen(root);
+        return res1;
     }
-
-    /**
-     * 滑动窗口最大值
-     * @param nums array
-     * @param k k个大小的窗口
-     * @return
-     */
-    public int[] maxSlidingWindow(int[] nums,int k){
-        int[]res = new int[nums.length-k+1];
-        int left = 0, right;
-        //int[]map; map[0]=索引 map[1]存储的值
-        //注意：根据索引判断该值是否有效，优先级队列存储值
-        PriorityQueue<int[]>queue = new PriorityQueue<>((o1,o2)->{return o2[1]-o1[1];});
-        for(right = 0;right<nums.length;right++){
-            int[]map = new int[]{right,nums[right]};
-            queue.offer(map);
-            if(right - left + 1 == k){
-               while(!queue.isEmpty()&&queue.peek()[0]<left){
-                   queue.poll();
-               }
-               res[left] = queue.peek()[1];
-               if(!queue.isEmpty()&&queue.peek()[0]==left){
-                   queue.poll();
-               }
-               left++;
-            }
-        }
-        return res;
-    }
-
-    /**
-     * 中序遍历
-     * @param root
-     * @return
-     */
-    public List<Integer> inorderTraversal(TreeNode root){
-        return dfs(root,new ArrayList<>());
-    }
-    private List<Integer>dfs(TreeNode root,List<Integer>list){
+    private int getLen(TreeNode root){
         if(root == null){
-            return list;
+            return 0;
         }
-        dfs(root.left,list);
-        list.add(root.val);
-        dfs(root.right,list);
-        return list;
-    }
-
-    /**
-     * 子集 回溯 相当于穷举
-     * 与排列不同，子集需要保证不同
-     * @param nums
-     * @return
-     */
-    private List<List<Integer>>ans2 = new ArrayList<>();
-    private List<Integer>path2 = new ArrayList<>();
-    public List<List<Integer>> subsets(int[] nums) {
-        ans2.add(new ArrayList<>());
-        for(int i = 0;i<nums.length;i++){
-            dfs(nums,i);
-        }
-        return ans2;
-    }
-    private void dfs(int[]nums,int start){
-        if(start == nums.length){
-            return;
-        }
-        path2.add(nums[start]);
-        ans2.add(new ArrayList<>(path2));
-        for(int i = start+1;i<nums.length;i++){
-            dfs(nums,i);
-        }
-        path2.removeLast();
-    }
-
-    /**
-     * 思路正确，但是测试数字太大了，超过了8字节 long的范围
-     * @param l1
-     * @param l2
-     * @return
-     */
-    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
-        long sum = getSum(l1,0) + getSum(l2,0);
-        ListNode dummyNode = new ListNode();
-        ListNode pre = dummyNode;
-        while(sum>0){
-            long num = sum%10;
-            pre.next = new ListNode((int)num);
-            sum/=10;
-            pre = pre.next;
-        }
-        pre.next = null;
-        return dummyNode.next;
-    }
-    private long getSum(ListNode head,int n){
-        if(head == null){
-          return 0;
-        }
-        return (int)(Math.pow(10,n)*head.val + getSum(head.next,n+1));
+        int left = getLen(root.left);
+        int right = getLen(root.right);
+        res1 = Math.max(res1,left+right);
+        return Math.max(left+1,right+1);
     }
 
 
     /**
-     * 字符串相乘
-     * @param num1
-     * @param num2
+     * 删除排序链表中的重复元素
+     * @param head
      * @return
      */
-    public String multiply(String num1, String num2) {
-        return null;
-    }
-
-    /**
-     * 最长公共子序列
-     * @param text1
-     * @param text2
-     * @return
-     */
-    public int longestCommonSubsequence(String text1, String text2) {
-        //确定状态：dp[i][j]:以第i，j个字符为结尾的最长子序列
-        //dp[i][j] = dp[i-1][j-1]+1&&i==j,Math.max(dp[i][j-1],dp[i-1][j])
-        //初始化dp[0]
-        int n = text1.length();
-        int m = text2.length();
-        int[][]dp = new int[n+1][m+1];
-        for(int row = 1;row<n;row++){
-            for(int col = 1;col<m;col++){
-                if(text1.charAt(row)==text2.charAt(col)){
-                    dp[row][col] = dp[row-1][col-1]+1;
-                }else{
-                    dp[row][col] = Math.max(dp[row-1][col],dp[row][col-1]);
-                }
+    public ListNode deleteDuplicates1(ListNode head) {
+        if(head == null) return null;
+        ListNode pre = head;
+        ListNode later = head.next;
+        while(later!=null){
+            if(later.val == pre.val){
+                pre.next = later.next;
+                later = later.next;
+            }else{
+                pre = pre.next;
+                later = later.next;
             }
         }
-        return dp[n][m];
+        return head;
     }
 
     /**
-     * 原地算法
-     * @param nums
+     * pow(x,n)
+     * 分治法
+     * f(x,n) = f(x,n/2)*f(x,n/2)  [n%2==0]
+     * ||f(x,n/2)^2 *x  [n%2!=0]
+     * @param x
+     * @param n
      * @return
      */
-    public int removeDuplicates(int[] nums) {
-        int left = 1;
-        for(int right = 1;right<nums.length;right++){
-            if(nums[right]!=nums[right-1]){
-                nums[left++] = nums[right];
-            }
-        }
-        return left;
+    public double myPow(double x, int n) {
+        long N  = n;
+        return N>=0?getMul(x,N):1.0/getMul(x,-N);
     }
-
-    /**
-     * 缺失的第一个正数
-     * @param nums
-     * @return
-     */
-    public int firstMissingPositive(int[] nums){
-        boolean[]flag = new boolean[nums.length+1];
-        for(int i:nums){
-            if(i>nums.length||i<0) continue;
-            flag[i] = true;
+    private double getMul(double x,long n){
+        if(n == 0){
+            return 1.0;
         }
-        for(int i = 1;i<=nums.length;i++){
-            if(!flag[i]){
-                return i;
-            }
-        }
-        return nums.length+1;
+        double y = getMul(x,n/2);//分治 log(n)
+        return n%2==0?y*y:y*y*x;
     }
-
-    /**
-     * 求根节点到叶节点数字之和
-     */
-    private List<StringBuilder>res = new ArrayList<>();
-    private StringBuilder str = new StringBuilder();
-    public int sumNumbers(TreeNode root) {
-        dfs(root);
-        int sum = 0;
-        for(StringBuilder path:res){
-            sum+=Integer.parseInt(path.toString());
-        }
-        return sum;
-    }
-
-    private void dfs(TreeNode root){
-        if(root == null) return;
-        if(root.left == null&&root.right==null){
-            str.append(root.val);
-            res.add(new StringBuilder(str));
-            str.deleteCharAt(str.length()-1);
-            return;
-        }
-        str.append(root.val);
-        dfs(root.left);
-        dfs(root.right);
-        str.deleteCharAt(str.length()-1);
-    }
-
-    /**
-     * 从前序与中序遍历序列构造二叉树
-     * @param preorder 中 左 右
-     * @param inorder 左 中 右
-     * @return
-     */
-    Map<Integer,Integer>map = new HashMap<>();
-    public TreeNode buildTree(int[] preorder, int[] inorder) {
-        for(int i = 0;i<inorder.length;i++){
-            map.put(inorder[i],i);
-        }
-        return buildTreeHelp(preorder,inorder,0,preorder.length-1,0,inorder.length-1);
-    }
-    private TreeNode buildTreeHelp(int[] preorder,int[] inorder,int preLeft,int preRight,int inLeft,int inRight){
-        if(preLeft > preRight){
-            return null;
-        }
-        int preRoot = preLeft;
-        int inOrderRoot = map.get(preorder[preRoot]);
-        TreeNode Root =  new TreeNode(preorder[preRoot]);
-        int leftSize = inOrderRoot - inLeft;
-        Root.left = buildTreeHelp(preorder,inorder,preLeft+1,preLeft+leftSize,inLeft,inOrderRoot-1);
-        Root.right = buildTreeHelp(preorder,inorder,preLeft+leftSize+1,preRight,inOrderRoot+1,inRight);
-        return Root;
-
-
-    }
-
-
-
-
-
 
 
 }
