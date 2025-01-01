@@ -1368,5 +1368,70 @@ public class Solutions {
         return n%2==0?y*y:y*y*x;
     }
 
+    /**
+     * 最长递增子序列
+     * dp[i]以i为结尾的最长子序列，dp[i] = max(dp[j])+1
+     * 0<=j<i && nums[j]<nums[i]
+     * @param nums
+     * @return
+     */
+    public int lengthOfLIS(int[] nums) {
+        int[]dp = new int[nums.length];
+        int res = 1;
+        dp[0] = 1;
+        for(int i = 1;i < nums.length;i++){
+            int maxx = 0;
+            for(int j = 0;j < i;j++){
+                if(nums[j]<nums[i]) {
+                    maxx = Math.max(maxx, dp[j]);
+                }
+            }
+            dp[i] = maxx+1;
+            res = Math.max(dp[i],res);
+        }
+        return res;
+    }
+
+    /**
+     * 全排列
+     * 回溯
+     */
+    private List<Integer>path3 = new ArrayList<>();
+    private List<List<Integer>>ans3 = new ArrayList<>();
+    public List<List<Integer>> permute(int[] nums) {
+        backTracking(nums,0);
+        return ans3;
+    }
+    private void backTracking(int []nums,int size){
+        if(size == nums.length){
+            ans3.add(new ArrayList<>(path3));
+            return;
+        }
+        for(int i = 0;i<nums.length;i++){
+            if(path3.contains(nums[i])){
+                continue;
+            }
+            path3.add(nums[i]);
+            backTracking(nums,size+1);
+            path3.removeLast();
+        }
+    }
+
+    /**
+     * 对称二叉树
+     * @param root
+     * @return
+     */
+    public boolean isSymmetric(TreeNode root) {
+        return check(root.left,root.right);
+    }
+    private boolean check(TreeNode leftNode,TreeNode rightNode){
+        if(leftNode == null&&rightNode == null) return true;
+        if(leftNode == null) return false;
+        if(rightNode == null) return false;
+        if(leftNode.val!=rightNode.val) return false;
+        return check(leftNode.right,rightNode.left)&&check(leftNode.left,rightNode.right);
+    }
+
 
 }
