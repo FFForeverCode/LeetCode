@@ -1433,5 +1433,46 @@ public class Solutions {
         return check(leftNode.right,rightNode.left)&&check(leftNode.left,rightNode.right);
     }
 
+    /**
+     * 二叉树的最小深度
+     * @param root
+     * @return
+     */
+    public int minDepth(TreeNode root) {
+        if(root == null) return 0;
+        return minHelp(root);
+    }
+    private int minHelp(TreeNode root){
+        if(root == null){
+            return Integer.MAX_VALUE;
+        }
+        if(root.left==null&&root.right==null){
+            return 1;
+        }
+        int left = minHelp(root.left);
+        int right = minHelp(root.right);
+        return Math.min(left,right)+1;
+    }
+
+
+    /**
+     * 买卖股票的最佳时机
+     * 贵了就卖，更新res，便宜了就买入更新min
+     * @param prices
+     * @return
+     */
+    public int maxProfit(int[] prices) {
+        int min = prices[0];
+        int res = 0;
+        for(int i = 1;i<prices.length;i++){
+            if(prices[i]<min){
+                min = prices[i];
+            }else{
+                res = Math.max(res,prices[i]-min);
+            }
+        }
+        return res;
+    }
+
 
 }
