@@ -1474,5 +1474,44 @@ public class Solutions {
         return res;
     }
 
+    /**
+     * 链表求和
+     * @param l1
+     * @param l2
+     * @return
+     */
+    public ListNode addTwoNumbers1(ListNode l1, ListNode l2) {
+        ListNode cur1 = new ListNode();
+        ListNode cur2 = new ListNode();
+        cur1.next = l1;
+        cur2.next = l2;
+        int cnt = 0;
+        while(cur1.next!=null&&cur2.next!=null){
+            int sum = cur1.next.val+cur2.next.val;
+            cur1.next.val = sum%10+cnt;
+            cnt = sum/10;
+            cur1 = cur1.next;
+            cur2 = cur2.next;
+        }
+        if(cur1.next == null) cur1.next = cur2.next;
+        while(cnt==1){
+            if(cur1.next==null){
+                cur1.next = new ListNode();
+                cur1.next.val = 1;
+                cur1.next.next = null;
+                cnt = 0;
+            }else{
+                int sum = cur1.next.val + cnt;
+                cur1.next.val = sum%10;
+                cnt = sum/10;
+                cur1 = cur1.next;
+            }
+        }
+        return l1;
+
+    }
+
+
+
 
 }
