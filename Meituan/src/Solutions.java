@@ -1474,5 +1474,80 @@ public class Solutions {
         return res;
     }
 
+    /**
+     * 链表求和
+     * @param l1
+     * @param l2
+     * @return
+     */
+    public ListNode addTwoNumbers1(ListNode l1, ListNode l2) {
+        ListNode cur1 = new ListNode();
+        ListNode cur2 = new ListNode();
+        cur1.next = l1;
+        cur2.next = l2;
+        int cnt = 0;
+        while(cur1.next!=null&&cur2.next!=null){
+            int sum = cur1.next.val+cur2.next.val;
+            cur1.next.val = sum%10+cnt;
+            cnt = sum/10;
+            cur1 = cur1.next;
+            cur2 = cur2.next;
+        }
+        if(cur1.next == null) cur1.next = cur2.next;
+        while(cnt==1){
+            if(cur1.next==null){
+                cur1.next = new ListNode();
+                cur1.next.val = 1;
+                cur1.next.next = null;
+                cnt = 0;
+            }else{
+                int sum = cur1.next.val + cnt;
+                cur1.next.val = sum%10;
+                cnt = sum/10;
+                cur1 = cur1.next;
+            }
+        }
+        return l1;
+
+    }
+
+    /**
+     * 岛屿的面积(岛屿的数量)
+     * 图的遍历DFS+并查集
+     * @param grid
+     * @return
+     */
+    //图的遍历+并查集
+    public int maxAreaOfIsland(int[][] grid) {
+        boolean[][]visited = new boolean[grid.length][grid[0].length];
+        int ans = 0;
+        for(int i = 0;i<grid.length;i++){
+            for(int j = 0;j<grid[0].length;j++){
+                ans = Math.max(ans,dfs(visited,grid,i,j,0));
+            }
+        }
+        return ans;
+    }
+
+    private int dfs(boolean[][]visited,int[][]grid,int row,int col,int area){
+        int row1 = grid.length;
+        int col1 = grid[0].length;
+        if(row>=row1||row<0||col>=col1||col<0){
+            return 0;
+        }
+        if(visited[row][col]) return 0;
+        if(grid[row][col] == 0) return 0;
+        visited[row][col] = true;
+        area++;
+        area+=dfs(visited,grid,row+1,col,0);
+        area+=dfs(visited,grid,row-1,col,0);
+        area+=dfs(visited,grid,row,col+1,0);
+        area+=dfs(visited,grid,row,col-1,0);
+        return area;
+
+    }
+
+
+
 
 }
