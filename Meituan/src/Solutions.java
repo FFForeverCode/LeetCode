@@ -1511,6 +1511,42 @@ public class Solutions {
 
     }
 
+    /**
+     * 岛屿的面积(岛屿的数量)
+     * 图的遍历DFS+并查集
+     * @param grid
+     * @return
+     */
+    //图的遍历+并查集
+    public int maxAreaOfIsland(int[][] grid) {
+        boolean[][]visited = new boolean[grid.length][grid[0].length];
+        int ans = 0;
+        for(int i = 0;i<grid.length;i++){
+            for(int j = 0;j<grid[0].length;j++){
+                ans = Math.max(ans,dfs(visited,grid,i,j,0));
+            }
+        }
+        return ans;
+    }
+
+    private int dfs(boolean[][]visited,int[][]grid,int row,int col,int area){
+        int row1 = grid.length;
+        int col1 = grid[0].length;
+        if(row>=row1||row<0||col>=col1||col<0){
+            return 0;
+        }
+        if(visited[row][col]) return 0;
+        if(grid[row][col] == 0) return 0;
+        visited[row][col] = true;
+        area++;
+        area+=dfs(visited,grid,row+1,col,0);
+        area+=dfs(visited,grid,row-1,col,0);
+        area+=dfs(visited,grid,row,col+1,0);
+        area+=dfs(visited,grid,row,col-1,0);
+        return area;
+
+    }
+
 
 
 

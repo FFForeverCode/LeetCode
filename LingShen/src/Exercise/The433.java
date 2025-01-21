@@ -22,6 +22,26 @@ public class The433 {
     }
 
     /**
+     * 前缀和
+     * @param nums
+     * @return
+     */
+    public int subArraySum1(int[]nums){
+        int cnt = 0;
+        int[]sum = new int[nums.length];//sum[i] 以i为结尾的前缀和
+        for(int i = 0;i<nums.length;i++){
+            cnt+=nums[i];
+            sum[i] = cnt;
+        }
+        int ans = 0;
+        for(int i = 0;i<nums.length;i++){
+            int start = Math.max(0,i - nums[i]);
+            ans +=  sum[i] - sum[start] + nums[start];
+        }
+        return ans;
+    }
+
+    /**
      * 超时
      * 回溯处理 子序列不超过k的最大数与最小数的和
      * @param nums
